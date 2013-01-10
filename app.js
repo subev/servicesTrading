@@ -24,8 +24,10 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/', needs.all);
+app.get('/', needs.index);
+app.get('/all', needs.all);
 app.get('/create', needs.create);
+app.get('/need/:id', needs.need);
 app.post('/create', needs.saveNew);
 
 http.createServer(app).listen(app.get('port'), function(){

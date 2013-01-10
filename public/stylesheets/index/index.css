@@ -3,3 +3,11 @@
   width: 400px;
   height: 200px;
 }
+.itemBody {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#lvNeeds {
+  border: none;
+}

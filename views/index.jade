@@ -7,9 +7,35 @@ block content
   h1= title
   p Welcome to our #{ title} site!
   p Here are the latest needs by people arround the world:
-  ul#lvNeeds
-      each need in needs
-        li
-          h3.lvItem=need.title
-          by
-          span.comment= need.author.name
+  div#lvNeeds
+  script(type='text/kendo',id='lvTemplate')
+      <a href='need/#=_id#'><h3 class='lvItem'>#=title#</h3></a>
+      <p class='itemBody'> #=body # </p>
+      <div>by #=author.name# posted <span class='timeago' title='#=kendo.format("{0:MMM/dd/yyyy h:m:s}",created_at)#'></span></div>
+block scripts
+    script
+        $(function(){
+
+            $("#lvNeeds").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/all"
+                        }
+                    },
+                    schema: {
+                        data: "results",
+                        parse:function(response){
+                             for(idx in response.results){
+                                 response.results[idx].created_at = new Date(response.results[idx].created_at);
+                             }
+                             return response;
+                        }
+                    }
+                },
+                dataBound:function(){
+                        $('.timeago').timeago();
+                },
+                template: $('#lvTemplate').html()
+            });
+        })

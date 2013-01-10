@@ -1,0 +1,12 @@
+extends layout
+
+block content
+    h3=need.title
+    p=need.body
+    .author by #{need.author.name} posted
+    time.timeago(title='need.created_at') time ago
+block scripts
+    script
+        $(function(){
+           $("time.timeago").timeago();
+        });

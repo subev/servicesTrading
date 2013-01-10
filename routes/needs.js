@@ -1,9 +1,13 @@
 var NeedsProvider = require('../infrastructure/dbNeedsProvider.js').NeedsProvider
 var provider = new NeedsProvider('localhost', 27017);
 
+exports.index = function(req, res){
+   res.render('index', { title: 'Service Trading'});
+};
+
 exports.all = function(req, res){
     provider.findAll(function(err,data){
-        res.render('index', { title: 'Service Trading' ,needs:data});
+        res.json({results:data});
     })
 };
 
@@ -16,27 +20,27 @@ exports.saveNew = function(req, res){
         title: req.param('title'),
         body: req.param('body'),
         author: {
-            name:"not implemented!"
+            name:"missin oAuth implementation!"
         }
     }, function( error, docs) {
         res.redirect('/')
     });
 }
 
+
+
+exports.need= function(req, res) {
+    provider.findById(req.params.id, function(error, need) {
+        res.render('need',{
+            need:need,
+            title:need.title
+        });
+    });
+};
+
 //---------------------
 
 // not implemented
-
-//app.get('/blog/:id', function(req, res) {
-//    articleProvider.findById(req.params.id, function(error, article) {
-//        res.render('blog_show.jade',
-//            { locals: {
-//                title: article.title,
-//                article:article
-//            }
-//            });
-//    });
-//});
 //
 //app.post('/blog/addComment', function(req, res) {
 //    articleProvider.addCommentToArticle(req.param('_id'), {

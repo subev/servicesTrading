@@ -3,7 +3,15 @@ html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/layout.css')
+    link(rel='stylesheet', href='/stylesheets/kendo/kendo.common.min.css')
+    link(rel='stylesheet', href='/stylesheets/kendo/kendo.default.min.css')
     block head
   body
     div.content
+        div
+           a.createNew(href='/create') I need someone to ...
         block content
+    script(src='../javascripts/jquery-1.8.3.min.js')
+    script(src='../javascripts/kendo/kendo.web.min.js')
+    script(src='../javascripts/jquery.timeago.js')
+    block scripts
