@@ -1,5 +1,5 @@
 {
-  "name": "application-name",
+  "name": "Service-Trading",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -9,6 +9,7 @@
     "express": "3.0.6",
     "jade": "*",
     "less-middleware": "*",
-    "mongodb": ">= 0.9.6-7"
+    "mongodb": ">= 0.9.6-7",
+    "everyauth":"git://github.com/bnoguchi/everyauth.git#express3"
   }
 }

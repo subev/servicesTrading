@@ -1,7 +1,8 @@
 var express = require('express')
   , needs = require('./routes/needs')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , everyauth = require('everyauth');
 
 var app = express();
 
@@ -24,6 +25,8 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
+
+
 app.get('/', needs.index);
 app.get('/all', needs.all);
 app.get('/create', needs.create);
@@ -33,3 +36,5 @@ app.post('/create', needs.saveNew);
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
+
+everyauth.helpExpress(app);
