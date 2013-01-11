@@ -2,28 +2,42 @@ doctype 5
 html
   head
     title= title
+    meta(name='viewport', content="width=device-width, initial-scale=1.0")
     link(rel='stylesheet', href='/stylesheets/layout.css')
     link(rel='stylesheet', href='/stylesheets/kendo/kendo.common.min.css')
     link(rel='stylesheet', href='/stylesheets/kendo/kendo.default.min.css')
+    link(rel='stylesheet', href='/stylesheets/bootstrap/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/bootstrap/bootstrap-responsive.min.css')
     block head
   body
-    div.content
-        div.logArea
-            - if (everyauth.loggedIn && everyauth.twitter)
-                |Logged as #{everyauth.twitter.user.name}
-                img(id='profileImage',src='#{everyauth.twitter.user.profile_image_url}')
-                div
-                 a(href='/logout') Logout
-            -else
-                span You need to login in order to post offers/comments
-                div
-                 a(href='/login/') Login
-        div
-           a(href='/')
-             img#logo(src='/images/logo.jpg')
-           a.createNew(href='/create') I need someone to ...
-        block content
+    div.navbar.navbar-inverse.navbar-fixed-top
+      .navbar-inner
+        .container
+           a.brand(href='/') Services Trading
+           .nav-collapse
+           ul.nav
+             li.active
+               a(href='#') Home
+             li
+               a(href='/create') Create New
+           ul.nav.navbar.pull-right
+               - if (everyauth.loggedIn && everyauth.twitter)
+                   li
+                    a #{everyauth.twitter.user.name}
+                   li
+                       img.img-rounded.profileImage(src="#{everyauth.twitter.user.profile_image_url}")
+                   li
+                      a(href="/logout") Logout
+               - else
+                   li
+                      a(href='/login') Login
+    .container
+     block content
+     hr
+     footer
+      p © Subev 2013
     script(src='../javascripts/jquery-1.8.3.min.js')
+    script(src='../javascripts/bootstrap/bootstrap.min.js')
     script(src='../javascripts/kendo/kendo.web.min.js')
     script(src='../javascripts/jquery.timeago.js')
     block scripts

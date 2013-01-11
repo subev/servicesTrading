@@ -3,14 +3,18 @@ extends layout
 block content
 
     h1= title
-    form( method="post")
+    form.well( method="post")
         div
             div
-                span Title :
-                input(type="text", name="title", id="editArticleTitle")
+                label Title
+                input.span3(type="text",required ,validationMessage='Title is required!',
+                name="title", id="editArticleTitle", placeholder='Enter the title here')
             div
-                span Body :
-                textarea( name="body", rows=20, id="editArticleBody)
-                div#editArticleSubmit
-                input(type="submit", value="Send")
+                label Description
+                textarea.span3(name="body",required, validationMessage='Description is required!', id="editArticleBody", placeholder='Enter the Description here')
+                br
+                input.btn.btn-primary(type="submit", value="Send")
 
+block scripts
+    script
+        var validator = $('.well').kendoValidator().data('kendoValidator');

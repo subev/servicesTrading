@@ -4,10 +4,9 @@ block head
     link(rel='stylesheet', href='/stylesheets/index/index.css')
 
 block content
-  h1= title
-
-  p Welcome to our #{ title} site!
-  p Here are the latest needs by people arround the world:
+  .lead
+    h2 Trading Services
+    p Trading services is something that will definitely help your deal with your daily tasks. We will help you find the right person to do your job.
   div#lvNeeds
   script(type='text/kendo',id='lvTemplate')
       <a href='need/#:_id#'><h3 class='lvItem'>#:title#</h3></a>
