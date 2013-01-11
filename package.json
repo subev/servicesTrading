@@ -10,6 +10,7 @@
     "jade": "*",
     "less-middleware": "*",
     "mongodb": ">= 0.9.6-7",
-    "everyauth":"git://github.com/bnoguchi/everyauth.git#express3"
+    "everyauth":"git://github.com/bnoguchi/everyauth.git#express3",
+	"moment":"*"
   }
 }

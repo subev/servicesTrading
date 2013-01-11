@@ -5,6 +5,10 @@ exports.index = function(req, res){
    res.render('index', { title: 'Service Trading'});
 };
 
+exports.login = function(req,res){
+    res.render('login',{title:'Login'});
+};
+
 exports.all = function(req, res){
     provider.findAll(function(err,data){
         res.json({results:data});
@@ -16,11 +20,13 @@ exports.create = function(req, res){
 };
 
 exports.saveNew = function(req, res){
+
     provider.save({
         title: req.param('title'),
         body: req.param('body'),
         author: {
-            name:"missin oAuth implementation!"
+            name:req.user.twitter.name,
+            id:req.user.twitter.id
         }
     }, function( error, docs) {
         res.redirect('/')

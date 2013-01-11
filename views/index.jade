@@ -5,13 +5,14 @@ block head
 
 block content
   h1= title
+
   p Welcome to our #{ title} site!
   p Here are the latest needs by people arround the world:
   div#lvNeeds
   script(type='text/kendo',id='lvTemplate')
-      <a href='need/#=_id#'><h3 class='lvItem'>#=title#</h3></a>
-      <p class='itemBody'> #=body # </p>
-      <div>by #=author.name# posted <span class='timeago' title='#=kendo.format("{0:MMM/dd/yyyy H:m:s}",created_at)#'></span></div>
+      <a href='need/#:_id#'><h3 class='lvItem'>#:title#</h3></a>
+      <p class='itemBody'> #:body # </p>
+      <div>by #:author.name# posted <span class='timeago' title='#=kendo.format("{0:MMM/dd/yyyy H:m:s}",created_at)#'></span></div>
 block scripts
     script
         $(function(){

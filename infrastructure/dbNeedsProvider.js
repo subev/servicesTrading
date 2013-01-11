@@ -11,7 +11,7 @@ NeedsProvider = function(host, port) {
 
 
 NeedsProvider.prototype.getCollection= function(callback) {
-    this.db.collection('needs', function(error, article_collection) {
+    this.db.collection('router', function(error, article_collection) {
         if( error ) callback(error);
         else callback(null, article_collection);
     });

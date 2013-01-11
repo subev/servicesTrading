@@ -3,10 +3,6 @@ extends layout
 block content
     h3=need.title
     p=need.body
-    .author by #{need.author.name} posted
-    time.timeago(title='need.created_at') time ago
-block scripts
-    script
-        $(function(){
-           $("time.timeago").timeago();
-        });
+    .author by <strong>#{need.author.name}</strong> posted <span class='timeago' title='#{moment(need.created_at).format('dd MMM YYYY hh:mm:ss')}'> #{moment(need.created_at).fromNow()}<span>
+
+

@@ -11,3 +11,7 @@ a {
 .timeago {
   font-style: italic;
 }
+#logo {
+  height: 150px;
+  width: 150px;
+}

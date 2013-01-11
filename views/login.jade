@@ -1,0 +1,11 @@
+extends layout
+block content
+    div.logArea
+        - if (everyauth.loggedIn && everyauth.twitter)
+            |You are already logged as #{everyauth.twitter.user.name}
+
+        -else
+            h3 Click the image below to enter with Twitter
+            div
+                a(href='/auth/twitter')
+                    img(src='/images/twitter.png')
