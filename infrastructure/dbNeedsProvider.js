@@ -10,18 +10,19 @@ NeedsProvider = function(host, port) {
 };
 
 
-NeedsProvider.prototype.getCollection= function(callback) {
-    this.db.collection('router', function(error, article_collection) {
+
+NeedsProvider.prototype.getCollection= function(colName,callback) {
+    this.db.collection(colName, function(error, needsCollection) {
         if( error ) callback(error);
-        else callback(null, article_collection);
+        else callback(null, needsCollection);
     });
 };
 
 NeedsProvider.prototype.findAll = function(callback) {
-    this.getCollection(function(error, article_collection) {
+    this.getCollection('needs',function(error, needsCollection) {
         if( error ) callback(error)
         else {
-            article_collection.find().toArray(function(error, results) {
+            needsCollection.find().sort({createdAt:-1 }).toArray(function(error, results) {
                 if( error ) callback(error)
                 else callback(null, results)
             });
@@ -31,10 +32,11 @@ NeedsProvider.prototype.findAll = function(callback) {
 
 
 NeedsProvider.prototype.findById = function(id, callback) {
-    this.getCollection(function(error, needsCollection) {
+    this.getCollection('needs',function(error, needsCollection) {
         if( error ) callback(error)
         else {
-            needsCollection.findOne({_id: needsCollection.db.bson_serializer.ObjectID.createFromHexString(id)}, function(error, result) {
+            var parsedID = needsCollection.db.bson_serializer.ObjectID.createFromHexString(id);
+            needsCollection.findOne({_id: parsedID}, function(error, result) {
                 if( error ) callback(error)
                 else callback(null, result)
             });
@@ -43,18 +45,18 @@ NeedsProvider.prototype.findById = function(id, callback) {
 };
 
 NeedsProvider.prototype.save = function(needs, callback) {
-    this.getCollection(function(error, needsCollection) {
+    this.getCollection('needs',function(error, needsCollection) {
         if( error ) callback(error)
         else {
             if( typeof(needs.length)=="undefined")
                 needs = [needs];
 
             for( var i =0;i< needs.length;i++ ) {
-                article = needs[i];
-                article.created_at = new Date();
-                if( article.comments === undefined ) article.comments = [];
-                for(var j =0;j< article.comments.length; j++) {
-                    article.comments[j].created_at = new Date();
+                var need = needs[i];
+                need.createdAt = new Date();
+                if( need.comments === undefined ) need.comments = [];
+                for(var j =0;j< need.comments.length; j++) {
+                    need.comments[j].createdAt = new Date();
                 }
             }
 
@@ -63,6 +65,25 @@ NeedsProvider.prototype.save = function(needs, callback) {
             });
         }
     });
+};
+
+//not sure if it will work without {_id: article_collection.db.bson_serializer.ObjectID.createFromHexString(articleId)},
+NeedsProvider.prototype.addCommentToNeed = function(needId,comment,callback){
+  this.getCollection('needs',function(error,needsCollection){
+      if(error) callback(error)
+      else{
+          needsCollection.update(
+              {_id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId)},
+              { '$push':{
+                  comments:comment
+                }
+              },
+              function(){
+                  callback(null,comment)
+              }
+          )
+      }
+  })
 };
 
 exports.NeedsProvider = NeedsProvider;

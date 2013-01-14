@@ -16,8 +16,6 @@ html
            a.brand(href='/') Services Trading
            .nav-collapse
            ul.nav
-             li.active
-               a(href='#') Home
              li
                a(href='/create') Create New
            ul.nav.navbar.pull-right
@@ -31,7 +29,7 @@ html
                - else
                    li
                       a(href='/login') Login
-    .container
+    .container-fluid
      block content
      hr
      footer

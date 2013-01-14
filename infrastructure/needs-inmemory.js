@@ -27,13 +27,13 @@ NeedsProvider.prototype.save = function(needs, callback) {
     for( var i =0;i< needs.length;i++ ) {
         currentNeeds = needs[i];
         currentNeeds._id = services++;
-        currentNeeds.created_at = new Date();
+        currentNeeds.createdAt = new Date();
 
         if( currentNeeds.comments === undefined )
             currentNeeds.comments = [];
 
         for(var j =0;j< currentNeeds.comments.length; j++) {
-            currentNeeds.comments[j].created_at = new Date();
+            currentNeeds.comments[j].createdAt = new Date();
         }
         this.dummyData[this.dummyData.length]= currentNeeds;
     }

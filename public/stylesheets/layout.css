@@ -12,6 +12,15 @@ body {
 }
 .timeago {
   font-style: italic;
+  color: #aaa;
+}
+.author {
+  float: right;
+}
+.comments {
+  margin-left: 50px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 #logo {
   height: 150px;

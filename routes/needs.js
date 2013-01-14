@@ -44,16 +44,20 @@ exports.need= function(req, res) {
     });
 };
 
-//---------------------
 
-// not implemented
-//
-//app.post('/blog/addComment', function(req, res) {
-//    articleProvider.addCommentToArticle(req.param('_id'), {
-//        person: req.param('person'),
-//        comment: req.param('comment'),
-//        created_at: new Date()
-//    } , function( error, docs) {
-//        res.redirect('/blog/' + req.param('_id'))
-//    });
-//});
+exports.addComment = function (req, res) {
+    provider.addCommentToNeed(req.param('_id'), {
+        author: {
+            name:req.user.twitter.name,
+            id:req.user.twitter.id
+        },
+        body: req.body['comment'],
+        createdAt: new Date()
+        } ,
+        function( error, comment) {
+            if(error) throw error
+            else {
+                res.redirect('/need/'+req.param('_id'));
+            }
+    });
+};

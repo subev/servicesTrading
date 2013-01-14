@@ -1,8 +1,28 @@
 extends layout
 
 block content
-    h3=need.title
-    p=need.body
-    .author by <strong>#{need.author.name}</strong> posted <span class='timeago' title='#{moment(need.created_at).format('dd MMM YYYY hh:mm:ss')}'> #{moment(need.created_at).fromNow()}<span>
+    .row-fluid
+        h3=need.title
+        p=need.body
+        .author by <strong>#{need.author.name}</strong> posted <span class='timeago' title='#{moment(need.createdAt).format('dd MMM YYYY hh:mm:ss')}'> #{moment(need.createdAt).fromNow()}<span>
+        br
+        hr
+    .commentWrapper
+        .comments
+            - if(need.comments)
+                each comment in need.comments
+                  .comment
+                    span.comment= comment.body
+                    span.commentBy= ' – '+comment.author.name + ' '
+                    span.commentCreatedAt.timeago(title=moment(comment.createdAt).format('DD MMM YYYY hh:mm:ss'))= moment(comment.createdAt).fromNow()
+                  hr
+
+        .addComment
+            |Add comment
+            form.inline(method='POST',action='/addComment')
+                input(type='hidden',name='_id',value=need._id)
+                textarea.span10(name='comment',required,validationMessage='Some text is required!')
+                input.btn-primary.btn(type='submit', valye='Comment')
+
 
 

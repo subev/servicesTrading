@@ -8,11 +8,15 @@ var express = require('express')
 
 var app = express();
 
+var usersByTwitId = {};
+var usersById = {};
+var nextUserId = 0;
+
 everyauth
     .twitter
     .consumerKey(auth.twitter.consumerKey)
     .consumerSecret(auth.twitter.consumerSecret)
-    .findOrCreateUser( function (sess, accessToken, accessSecret, twitUser) {
+    .findOrCreateUser( function (sess, accessToken, accessSecret, twitUser){
         return usersByTwitId[twitUser.id] || (usersByTwitId[twitUser.id] = addUser('twitter', twitUser));
     })
     .redirectPath('/');
@@ -23,9 +27,7 @@ everyauth.everymodule
         callback(null, usersById[id]);
     });
 
-var usersByTwitId = {};
-var usersById = {};
-var nextUserId = 0;
+
 function addUser (source, sourceUser) {
     var user;
     if (arguments.length === 1) { // password-based
@@ -63,6 +65,7 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
+//helpers
 app.locals.moment = moment;
 
 function accessChecker(req,res,next){
@@ -80,6 +83,7 @@ app.get('/all', router.all);
 app.get('/create',accessChecker, router.create);
 app.post('/create', router.saveNew);
 app.get('/need/:id', router.need);
+app.post('/addComment',accessChecker, router.addComment);
 
 
 http.createServer(app).listen(app.get('port'), function(){
