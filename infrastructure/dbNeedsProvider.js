@@ -9,8 +9,6 @@ NeedsProvider = function(host, port) {
     this.db.open(function(){});
 };
 
-
-
 NeedsProvider.prototype.getCollection= function(colName,callback) {
     this.db.collection(colName, function(error, needsCollection) {
         if( error ) callback(error);
@@ -22,14 +20,13 @@ NeedsProvider.prototype.findAll = function(callback) {
     this.getCollection('needs',function(error, needsCollection) {
         if( error ) callback(error)
         else {
-            needsCollection.find().sort({createdAt:-1 }).toArray(function(error, results) {
+            needsCollection.find(null,{comments:0}).sort({createdAt:-1 }).toArray(function(error, results) {
                 if( error ) callback(error)
                 else callback(null, results)
             });
         }
     });
 };
-
 
 NeedsProvider.prototype.findById = function(id, callback) {
     this.getCollection('needs',function(error, needsCollection) {
@@ -67,7 +64,6 @@ NeedsProvider.prototype.save = function(needs, callback) {
     });
 };
 
-//not sure if it will work without {_id: article_collection.db.bson_serializer.ObjectID.createFromHexString(articleId)},
 NeedsProvider.prototype.addCommentToNeed = function(needId,comment,callback){
   this.getCollection('needs',function(error,needsCollection){
       if(error) callback(error)
@@ -85,5 +81,73 @@ NeedsProvider.prototype.addCommentToNeed = function(needId,comment,callback){
       }
   })
 };
+
+NeedsProvider.prototype.getOrCreateUser = function(user,callback){
+    this.getCollection('users',function(error,usersCollection){
+        usersCollection.findOne({id:user.id},function(err,result){
+            if(err) callback(err)
+            else{
+                if(result) callback(null,result)
+                else{
+                    usersCollection.insert(user,function(){
+                        callback(null,user)
+                    })
+                }
+            }
+        })
+    })
+}
+
+NeedsProvider.prototype.getUserById = function(userId,callback){
+    this.getCollection('users',function(error,users){
+        if(error) callback(error)
+        else{
+             users.findOne({id:userId},function(err,user){
+                 callback(null,user)
+             })
+        }
+    })
+}
+
+NeedsProvider.prototype.getNeedsForUser = function(userId,callback){
+    this.getCollection('needs',function(error,users){
+        if(error) callback(error)
+        else{
+            users.find({'author.id':userId}).toArray(function(err,result){
+                callback(null,result)
+            })
+        }
+    })
+}
+
+NeedsProvider.prototype.applyFor = function(needId,userId,callback){
+    this.getCollection('needs',function(error,needsCollection){
+        needsCollection.update(
+            {_id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId)},
+            { '$addToSet':{
+                    applied:userId
+                }
+            },
+            function(){
+                callback(null)
+            }
+        )
+    })
+}
+
+NeedsProvider.prototype.cancelFor = function(needId,userId,callback){
+    this.getCollection('needs',function(error,needsCollection){
+        needsCollection.update(
+            {_id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId)},
+            { '$pull':{
+                applied:userId
+            }
+            },
+            function(){
+                callback(null)
+            }
+        )
+    })
+}
 
 exports.NeedsProvider = NeedsProvider;

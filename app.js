@@ -8,43 +8,29 @@ var express = require('express')
 
 var app = express();
 
-var usersByTwitId = {};
-var usersById = {};
-var nextUserId = 0;
-
 everyauth
     .twitter
     .consumerKey(auth.twitter.consumerKey)
     .consumerSecret(auth.twitter.consumerSecret)
     .findOrCreateUser( function (sess, accessToken, accessSecret, twitUser){
-        return usersByTwitId[twitUser.id] || (usersByTwitId[twitUser.id] = addUser('twitter', twitUser));
+        var userPromise = this.Promise();
+        router.getOrCreateUser(twitUser,function(err,user){
+            if(err) {
+                userPromise.fail(err)
+            }
+            else{
+                userPromise.fulfill(user)
+            }
+        })
+        return userPromise;
     })
     .redirectPath('/');
 
-//copied from example
-everyauth.everymodule
-    .findUserById( function (id, callback) {
-        callback(null, usersById[id]);
-    });
-
-
-function addUser (source, sourceUser) {
-    var user;
-    if (arguments.length === 1) { // password-based
-        user = sourceUser = source;
-        user.id = ++nextUserId;
-        return usersById[nextUserId] = user;
-    } else { // non-password-based
-        user = usersById[++nextUserId] = {id: nextUserId};
-        user[source] = sourceUser;
-    }
-    return user;
-}
-
-//end of example copy
+everyauth.everymodule.findUserById(router.getUser);
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
+  app.use(express.static(path.join(__dirname, 'public')));
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.favicon());
@@ -55,9 +41,10 @@ app.configure(function(){
   app.use(express.session());
   app.use(everyauth.middleware(app));
 
+
   app.use(app.router);
   app.use(require('less-middleware')({ src: __dirname + '/public' }));
-  app.use(express.static(path.join(__dirname, 'public')));
+
 });
 
 
@@ -84,6 +71,10 @@ app.get('/create',accessChecker, router.create);
 app.post('/create', router.saveNew);
 app.get('/need/:id', router.need);
 app.post('/addComment',accessChecker, router.addComment);
+app.get('/user/:id',router.user);
+app.get('/needsFor/:id',router.needsForUser);
+app.get('/applyFor/:id',router.applyFor);
+app.get('/cancelFor/:id',router.cancelFor);
 
 
 http.createServer(app).listen(app.get('port'), function(){

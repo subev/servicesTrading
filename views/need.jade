@@ -1,19 +1,31 @@
 extends layout
 
 block content
-    .row-fluid
-        h3=need.title
-        p=need.body
-        .author by <strong>#{need.author.name}</strong> posted <span class='timeago' title='#{moment(need.createdAt).format('dd MMM YYYY hh:mm:ss')}'> #{moment(need.createdAt).fromNow()}<span>
-        br
-        hr
+
+    h3=need.title
+    p=need.body
+
+     -if(everyauth.userId)
+        -if(everyauth.userId!=need.author.id)
+            .status=need.status
+            div
+            -if(need.applied.indexOf(everyauth.userId)==-1)
+              a.btn.apply(href='/applyfor/'+need._id) Apply for it!
+            -else
+              a.btn.btn-inverse.apply(href='/cancelfor/'+need._id) Cancel request
+        else
+           div SHOW LISTING
+    .author by <strong>#{need.author.name}</strong> posted <span class='timeago' title='#{moment(need.createdAt).format('dd MMM YYYY hh:mm:ss')}'> #{moment(need.createdAt).fromNow()}<span>
+    .clearer
+    br
+    hr
     .commentWrapper
         .comments
             - if(need.comments)
                 each comment in need.comments
                   .comment
-                    span.comment= comment.body
-                    span.commentBy= ' – '+comment.author.name + ' '
+                    span.comment= comment.body+' – '
+                    strong.commentBy= comment.author.name + ' '
                     span.commentCreatedAt.timeago(title=moment(comment.createdAt).format('DD MMM YYYY hh:mm:ss'))= moment(comment.createdAt).fromNow()
                   hr
 
@@ -24,5 +36,31 @@ block content
                 textarea.span10(name='comment',required,validationMessage='Some text is required!')
                 input.btn-primary.btn(type='submit', valye='Comment')
 
+
+block scripts
+    script
+        $('.apply').click(function(e){
+            e.preventDefault();
+            var link = $(this);
+            var url = link.attr('href');
+
+            if(url.indexOf('applyfor')!=-1){
+                $.get(url,function(){
+                    link.html('Cancel request');
+                    link.addClass('btn-inverse');
+                    url = url.replace('applyfor','cancelfor');
+                    link.attr('href',url);
+                })
+            }
+            else{
+                $.get(url,function(){
+                    link.html('Apply for it!');
+                    link.removeClass('btn-inverse');
+                    url = url.replace('cancelfor','applyfor');
+                    link.attr('href',url);
+                })
+            }
+
+        })
 
 

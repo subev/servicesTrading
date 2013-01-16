@@ -9,9 +9,12 @@ block content
     p Trading services is something that will definitely help your deal with your daily tasks. We will help you find the right person to do your job.
   div#lvNeeds
   script(type='text/kendo',id='lvTemplate')
-      <a href='need/#:_id#'><h3 class='lvItem'>#:title#</h3></a>
+    .lvItem
+      <a href='need/#:_id#'><h3>#:title#</h3></a>
       <p class='itemBody'> #:body # </p>
-      <div>by #:author.name# posted <span class='timeago' title='#=kendo.format("{0:MMM/dd/yyyy H:m:s}",createdAt)#'></span></div>
+      <div class='status'>#: status #</div>
+      <div class='classInfo'>by <strong>#:author.name#</strong> posted <span class='timeago' title='#=kendo.format("{0:MMM/dd/yyyy H:m:s}",createdAt)#'></span></div>
+      <div class='clearer'/>
 block scripts
     script
         $(function(){

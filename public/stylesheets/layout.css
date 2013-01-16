@@ -10,6 +10,17 @@ body {
 .createNew {
   font-size: 30px;
 }
+.lvItem {
+  background: #efefef;
+  padding: 10px;
+  margin: 5px;
+}
+.clearer {
+  clear: both;
+}
+.classInfo {
+  float: right;
+}
 .timeago {
   font-style: italic;
   color: #aaa;
