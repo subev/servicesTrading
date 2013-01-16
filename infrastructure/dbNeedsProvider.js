@@ -89,6 +89,9 @@ NeedsProvider.prototype.getOrCreateUser = function(user,callback){
             else{
                 if(result) callback(null,result)
                 else{
+                    user.needRating = 0;
+                    user.needRegistration = new Date();
+
                     usersCollection.insert(user,function(){
                         callback(null,user)
                     })
@@ -139,14 +142,74 @@ NeedsProvider.prototype.cancelFor = function(needId,userId,callback){
     this.getCollection('needs',function(error,needsCollection){
         needsCollection.update(
             {_id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId)},
-            { '$pull':{
-                applied:userId
-            }
+            {
+                '$pull':{
+                    applied:userId
+                }
             },
             function(){
                 callback(null)
             }
         )
+    })
+}
+
+NeedsProvider.prototype.cancelIfPending = function(needId,userId,callback){
+    this.getCollection('needs',function(error,needsCollection){
+        needsCollection.update(
+            {
+                _id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId),
+                currentApplicantId:userId
+            },
+            {
+                '$set':{
+                    currentApplicantId:0,
+                    status:'open'
+                }
+            },
+            function(){
+                callback(null)
+            }
+        )
+    })
+}
+
+NeedsProvider.prototype.getAppliedUserForOffer = function(userIds,callback){
+    this.getCollection('users',function(error,users){
+        if(error) callback(error)
+        else{
+            users.find({'id':{'$in':userIds}}).toArray(function(err,result){
+                callback(null,result)
+            })
+        }
+    })
+}
+
+NeedsProvider.prototype.accept = function(needId,currentUserId,applicantId,callback){
+    var that = this;
+    that.findById(needId,function(error,need){
+        if(need.author.id!=currentUserId){
+            callback(new Error("The author and the one trying to accept does not match!"))
+        }
+        else if(error){
+            callback(error)
+        }
+        else{
+            that.getCollection('needs',function(err,needsCollection){
+                needsCollection.update(
+                    {_id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId)},
+                    {
+                        '$set':{
+                            status:'inProgress',
+                            currentApplicantId:applicantId
+                        }
+                    },
+                    function(){
+                        callback(null)
+                    }
+                )
+            })
+        }
     })
 }
 

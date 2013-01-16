@@ -73,8 +73,9 @@ app.get('/need/:id', router.need);
 app.post('/addComment',accessChecker, router.addComment);
 app.get('/user/:id',router.user);
 app.get('/needsFor/:id',router.needsForUser);
-app.get('/applyFor/:id',router.applyFor);
-app.get('/cancelFor/:id',router.cancelFor);
+app.get('/applyFor/:id',accessChecker,router.applyFor);
+app.get('/cancelFor/:id',accessChecker,router.cancelFor);
+app.get('/accept/:userId/:needId',accessChecker,router.accept);
 
 
 http.createServer(app).listen(app.get('port'), function(){

@@ -2,20 +2,44 @@ extends layout
 
 block content
 
-    h3=need.title
-    p=need.body
+    h3 #{need.title}
+    div.text-warning
+        case need.status
+            when 'open'
+                strong OPEN
+            when 'inProgress'
+                strong IN PROGRESS with #{need.currentApplicant.name}
+            default
+                p NOT IMPLEMENTED
 
-     -if(everyauth.userId)
-        -if(everyauth.userId!=need.author.id)
-            .status=need.status
-            div
-            -if(need.applied.indexOf(everyauth.userId)==-1)
-              a.btn.apply(href='/applyfor/'+need._id) Apply for it!
-            -else
-              a.btn.btn-inverse.apply(href='/cancelfor/'+need._id) Cancel request
-        else
-           div SHOW LISTING
-    .author by <strong>#{need.author.name}</strong> posted <span class='timeago' title='#{moment(need.createdAt).format('dd MMM YYYY hh:mm:ss')}'> #{moment(need.createdAt).fromNow()}<span>
+    p.needBody=need.body
+
+
+     -if(everyauth.userId && !isOwner)
+        div
+        -if(need.applied.indexOf(everyauth.userId)==-1)
+          a.btn.apply(href='/applyfor/'+need._id) Apply for it!
+        -else if(!isCurrentApplicant)
+          a.btn.btn-inverse.apply(href='/cancelfor/'+need._id) Cancel request
+
+
+    -if(appliedUsers.length)
+        div
+            p.text-info The following users are interested to help:
+            br
+            each applicant in appliedUsers
+                if(isOwner && need.status=='inProgress' && need.currentApplicant.id == applicant.id)
+                    a.btn.btn-danger(href='#',title='End working with this person and rate him?')=applicant.name+' - '+applicant.needRating
+                else if(isOwner)
+                    a.applicant.btn.btn-warning(href='/accept/'+applicant.id+'/'+need._id,title='Accept this person?')= applicant.name+' - '+applicant.needRating
+                else if(isCurrentApplicant)
+                    a.btn.btn-danger(href='/#',title='End working with this person and rate him?') Quit this offer
+                else
+                    a.btn.disabled(href='#')=applicant.name+' - '+applicant.needRating
+
+
+
+    .author created by <strong>#{need.author.name}</strong> posted <span class='timeago' title='#{moment(need.createdAt).format('dd MMM YYYY hh:mm:ss')}'> #{moment(need.createdAt).fromNow()}<span>
     .clearer
     br
     hr

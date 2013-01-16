@@ -28,6 +28,7 @@ exports.saveNew = function(req, res){
             name:req.user.name,
             id:req.user.id
         },
+        applied:[],
         status:'open'
     }, function( error, docs) {
         res.redirect('/')
@@ -38,10 +39,46 @@ exports.saveNew = function(req, res){
 
 exports.need= function(req, res) {
     provider.findById(req.params.id, function(error, need) {
-        res.render('need',{
-            need:need,
-            title:need.title
-        });
+        var isOwner = need.author.id==(req.user && req.user.id);
+
+
+        if(isOwner || need.applied.length!=0){
+            var appliedUsers = provider.getAppliedUserForOffer(need.applied,function(err,appliedUsers){
+                if(err){
+                    res.send(500,'Error getting users who applied for that need')
+                }
+                else{
+
+                    if(need.currentApplicantId){
+                        for(var i=0;i<appliedUsers.length;i++){
+                            if(appliedUsers[i].id==need.currentApplicantId){
+                                need.currentApplicant= appliedUsers[i];
+                                break;
+                            }
+                        }
+
+                    }
+
+                    var isCurrentApplicant = need.currentApplicantId === (req.user && req.user.id);
+                    console.log('IS THE REQUESTER CURRENT APPLICANT?',isCurrentApplicant)
+                    res.render('need',{
+                        need:need,
+                        title:need.title,
+                        isOwner:isOwner,
+                        appliedUsers:appliedUsers,
+                        isCurrentApplicant:isCurrentApplicant
+                    });
+                }
+            })
+        }
+        else{
+            res.render('need',{
+                need:need,
+                title:need.title,
+                isOwner:isOwner,
+                appliedUsers:[]
+            });
+        }
     });
 };
 
@@ -89,6 +126,7 @@ exports.user = function(req,res){
     })
 }
 
+//USAGE NOT IMPLEMENTED
 exports.needsForUser = function(req,res){
     var id = parseInt(req.param('id'));
     provider.getNeedsForUser(id,function(err,needs){
@@ -98,29 +136,41 @@ exports.needsForUser = function(req,res){
 
 exports.applyFor = function(req,res){
     var needId = req.param('id');
-    var userId = req.user && req.user.id ;
-    if(!userId){
-        res.send(401,'Not authorized?');
-    }
-    else{
-        provider.applyFor(needId,userId,function(err){
-            if(err) res.send(500,'Applying failed')
-            else res.send(200)
-        })
-    }
-
+    var userId = req.user.id ;
+    provider.applyFor(needId,userId,function(err){
+        if(err) res.send(500,'Applying failed')
+        else res.send(200)
+    })
 }
 
 exports.cancelFor = function(req,res){
     var needId = req.param('id');
-    var userId = req.user && req.user.id ;
-    if(!userId){
-        res.send(401,'Not authorized?');
-    }
-    else{
-        provider.cancelFor(needId,userId,function(err){
+    var userId = req.user.id ;
+    var tasksRemaining = 2;
+
+    provider.cancelFor(needId,userId,function(err){
+        tasksRemaining--;
+        if(tasksRemaining==0){
             if(err) res.send(500,'Canceling failed')
             else res.send(200)
-        })
-    }
+        }
+    })
+    provider.cancelIfPending(needId,userId,function(err){
+        tasksRemaining--;
+        if(tasksRemaining==0){
+            if(err) res.send(500,'Canceling failed')
+            else res.send(200)
+        }
+    })
+}
+
+exports.accept = function(req,res){
+    var needId = req.param('needId');
+    var currentUserId = req.user.id ;
+    var applicantId = parseInt(req.param('userId'));
+    if(currentUserId == applicantId) send(500,"Applicant and owner could not be the same!")
+    provider.accept(needId,currentUserId,applicantId,function(err){
+        if(err) res.send(500,'Accepting failed')
+        else res.redirect('/need/'+needId)
+    })
 }

@@ -15,6 +15,10 @@ body {
   padding: 10px;
   margin: 5px;
 }
+.needBody {
+  background: #efefef;
+  margin-top: 10px;
+}
 .clearer {
   clear: both;
 }
