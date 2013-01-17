@@ -60,7 +60,6 @@ exports.need= function(req, res) {
                     }
 
                     var isCurrentApplicant = need.currentApplicantId === (req.user && req.user.id);
-                    console.log('IS THE REQUESTER CURRENT APPLICANT?',isCurrentApplicant)
                     res.render('need',{
                         need:need,
                         title:need.title,
@@ -146,8 +145,8 @@ exports.applyFor = function(req,res){
 exports.cancelFor = function(req,res){
     var needId = req.param('id');
     var userId = req.user.id ;
-    var tasksRemaining = 2;
 
+    var tasksRemaining = 2;
     provider.cancelFor(needId,userId,function(err){
         tasksRemaining--;
         if(tasksRemaining==0){
@@ -172,5 +171,32 @@ exports.accept = function(req,res){
     provider.accept(needId,currentUserId,applicantId,function(err){
         if(err) res.send(500,'Accepting failed')
         else res.redirect('/need/'+needId)
+    })
+}
+
+exports.dismiss = function(req,res){
+    var needId = req.param('needId');
+    var authorId = parseInt(req.user.id) ;
+    provider.dismiss(needId,authorId,function(err){
+        if(err) res.send(500,'Dismissing failed')
+        else res.redirect('/need/'+needId);
+    })
+}
+
+exports.ownerMark = function(req,res){
+    var needId = req.param('needId');
+    var authorId = parseInt(req.user.id) ;
+    provider.ownerMark(needId,authorId,function(err){
+        if(err) res.send(500,'Marking failed')
+        else res.send(200);
+    })
+}
+
+exports.applicantMark = function(req,res){
+    var needId = req.param('needId');
+    var applicantId = parseInt(req.user.id) ;
+    provider.applicantMark(needId,applicantId,function(err){
+        if(err) res.send(500,'Marking failed')
+        else res.send(200);
     })
 }

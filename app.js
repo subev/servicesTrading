@@ -76,7 +76,9 @@ app.get('/needsFor/:id',router.needsForUser);
 app.get('/applyFor/:id',accessChecker,router.applyFor);
 app.get('/cancelFor/:id',accessChecker,router.cancelFor);
 app.get('/accept/:userId/:needId',accessChecker,router.accept);
-
+app.get('/dismissApplicant/:needId',accessChecker,router.dismiss);
+app.get('/ownerMark/:needId',accessChecker,router.ownerMark);
+app.get('/applicantMark/:needId',accessChecker,router.applicantMark);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

@@ -3,39 +3,45 @@ extends layout
 block content
 
     h3 #{need.title}
+    if(need.status=='inProgress'&&(isCurrentApplicant||isOwner))
+        if(isOwner && !need.ownerMarked)
+            a.btn.btn-success.pull-right.markToComplete(href="/ownerMark/"+need._id) MARK AS COMPLETED
+        else if(isCurrentApplicant && !need.applicantMarked)
+            a.btn.btn-success.pull-right.markToComplete(href="/applicantMark/"+need._id) MARK AS COMPLETED
     div.text-warning
         case need.status
             when 'open'
                 strong OPEN
             when 'inProgress'
                 strong IN PROGRESS with #{need.currentApplicant.name}
-            default
-                p NOT IMPLEMENTED
+            when 'completed'
+                strong COMPLETED
+                 |<span class='timeago' title='Completed on #{moment(need.completedDate).format('dd MMM YYYY hh:mm:ss')}'>#{moment(need.completedDate).from(need.createdAt)}</span>
+
 
     p.needBody=need.body
 
 
-     -if(everyauth.userId && !isOwner)
+     if(need.status!='completed'&&everyauth.userId && !isOwner)
         div
-        -if(need.applied.indexOf(everyauth.userId)==-1)
+        if(need.applied.indexOf(everyauth.userId)==-1)
           a.btn.apply(href='/applyfor/'+need._id) Apply for it!
-        -else if(!isCurrentApplicant)
-          a.btn.btn-inverse.apply(href='/cancelfor/'+need._id) Cancel request
+        else
+          a.btn.btn-danger.apply(href='/cancelfor/'+need._id,class=) Cancel request
 
 
-    -if(appliedUsers.length)
+    if(need.status!='completed'&&appliedUsers.length)
         div
             p.text-info The following users are interested to help:
             br
             each applicant in appliedUsers
                 if(isOwner && need.status=='inProgress' && need.currentApplicant.id == applicant.id)
-                    a.btn.btn-danger(href='#',title='End working with this person and rate him?')=applicant.name+' - '+applicant.needRating
+                    a.btn.btn-danger(href='/dismissApplicant/'+need._id,title='End working with this person and rate him?')=applicant.name+' - '+applicant.needRating
                 else if(isOwner)
                     a.applicant.btn.btn-warning(href='/accept/'+applicant.id+'/'+need._id,title='Accept this person?')= applicant.name+' - '+applicant.needRating
-                else if(isCurrentApplicant)
-                    a.btn.btn-danger(href='/#',title='End working with this person and rate him?') Quit this offer
                 else
                     a.btn.disabled(href='#')=applicant.name+' - '+applicant.needRating
+
 
 
 
@@ -45,7 +51,7 @@ block content
     hr
     .commentWrapper
         .comments
-            - if(need.comments)
+            if(need.comments)
                 each comment in need.comments
                   .comment
                     span.comment= comment.body+' – '
@@ -79,12 +85,20 @@ block scripts
             else{
                 $.get(url,function(){
                     link.html('Apply for it!');
-                    link.removeClass('btn-inverse');
+                    link.removeClass('btn-danger');
                     url = url.replace('cancelfor','applyfor');
                     link.attr('href',url);
                 })
             }
+        })
 
+        $('.markToComplete').click(function(e){
+            e.preventDefault();
+            var link = $(this);
+            var url = link.attr('href');
+            $.get(url,function(){
+                link.fadeOut()
+            })
         })
 
 

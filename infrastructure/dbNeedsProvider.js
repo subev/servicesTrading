@@ -213,4 +213,93 @@ NeedsProvider.prototype.accept = function(needId,currentUserId,applicantId,callb
     })
 }
 
+NeedsProvider.prototype.dismiss = function(needId,authorId,callback){
+    this.getCollection('needs',function(error,needsCollection){
+        needsCollection.update(
+            {
+                "_id":needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId),
+                "author.id":authorId
+            },
+            {
+                '$set':{
+                    currentApplicantId:0,
+                    status:'open'
+                }
+            },
+            function(){
+
+                callback(null)
+            }
+        )
+    })
+}
+
+NeedsProvider.prototype.ownerMark = function(needId,ownerId,callback){
+    var that = this;
+    that.getCollection('needs',function(error,needsCollection){
+        needsCollection.update(
+            {
+                _id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId),
+                'author.id':ownerId
+            },
+            {
+                '$set':{
+                    ownerMarked:true
+                }
+            },
+            function(){
+                that.updateToCompletedIfNeed(needId,callback);
+            }
+        )
+    })
+}
+
+NeedsProvider.prototype.applicantMark = function(needId,applicantId,callback){
+    var that=this;
+    that.getCollection('needs',function(error,needsCollection){
+        needsCollection.update(
+            {
+                _id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId),
+                'currentApplicantId':applicantId
+            },
+            {
+                '$set':{
+                    applicantMarked:true
+                }
+            },
+            function(){
+                console.log('1111',callback)
+                that.updateToCompletedIfNeed(needId,callback);
+            }
+        )
+    })
+}
+
+NeedsProvider.prototype.updateToCompletedIfNeed = function(needId,callback){
+    console.log('2222',callback)
+    var that = this;
+    that.findById(needId,function(error,need){
+        console.log('3333',callback)
+        if(need.ownerMarked&&need.applicantMarked){
+            console.log('4444',callback)
+            that.getCollection('needs',function(error,needsCollection){
+                needsCollection.update({
+                        _id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId)
+                    },
+                    {
+                        '$set':{
+                            status:'completed',
+                            completedDate:new Date()
+                        }
+                    },
+                    callback
+                    )
+            })
+        }
+        else{
+            callback(null)
+        }
+    })
+}
+
 exports.NeedsProvider = NeedsProvider;
