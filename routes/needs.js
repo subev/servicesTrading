@@ -39,8 +39,12 @@ exports.saveNew = function(req, res){
 
 exports.need= function(req, res) {
     provider.findById(req.params.id, function(error, need) {
+        if(error||!need){
+            res.send(404,'Need could not be found!')
+            return;
+        }
         var isOwner = need.author.id==(req.user && req.user.id);
-
+        var isCurrentApplicant = need.currentApplicantId === (req.user && req.user.id);
 
         if(isOwner || need.applied.length!=0){
             var appliedUsers = provider.getAppliedUserForOffer(need.applied,function(err,appliedUsers){
@@ -59,7 +63,7 @@ exports.need= function(req, res) {
 
                     }
 
-                    var isCurrentApplicant = need.currentApplicantId === (req.user && req.user.id);
+
                     res.render('need',{
                         need:need,
                         title:need.title,
@@ -75,7 +79,8 @@ exports.need= function(req, res) {
                 need:need,
                 title:need.title,
                 isOwner:isOwner,
-                appliedUsers:[]
+                appliedUsers:[],
+                isCurrentApplicant:isCurrentApplicant
             });
         }
     });
@@ -100,7 +105,6 @@ exports.addComment = function (req, res) {
 };
 
 
-//special method for creating twitter user
 exports.getOrCreateUser = function(twitterUser,callback){
     provider.getOrCreateUser(twitterUser,function(err,user){
         if(err) callback(err)
@@ -125,10 +129,16 @@ exports.user = function(req,res){
     })
 }
 
-//USAGE NOT IMPLEMENTED
 exports.needsForUser = function(req,res){
     var id = parseInt(req.param('id'));
     provider.getNeedsForUser(id,function(err,needs){
+        res.json(needs)
+    })
+}
+
+exports.needsWhichUserCompleted= function(req,res){
+    var id = parseInt(req.param('id'));
+    provider.getNeedsWhichUserCompleted(id,function(err,needs){
         res.json(needs)
     })
 }
@@ -197,6 +207,17 @@ exports.applicantMark = function(req,res){
     var applicantId = parseInt(req.user.id) ;
     provider.applicantMark(needId,applicantId,function(err){
         if(err) res.send(500,'Marking failed')
+        else res.send(200);
+    })
+}
+
+exports.vote = function(req,res){
+    var needId = req.param('needId');
+    var type = req.param('type');
+    var positive = type=="up" ? true:false;
+    var userId = parseInt(req.user.id) ;
+    provider.vote(needId,userId,positive,function(err){
+        if(err) res.send(500,'Voting failed')
         else res.send(200);
     })
 }

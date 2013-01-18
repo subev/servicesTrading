@@ -21,7 +21,7 @@ html
            ul.nav.navbar.pull-right
                - if (everyauth.loggedIn && everyauth.twitter)
                    li
-                    a #{everyauth.twitter.user.name}
+                       a(href='/user/'+everyauth.userId)=everyauth.twitter.user.name
                    li
                        img.img-rounded.profileImage(src="#{everyauth.twitter.user.profile_image_url}")
                    li

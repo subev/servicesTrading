@@ -1,8 +1,11 @@
 extends layout
 
 block content
-
     h3 #{need.title}
+    if(need.status=='completed'&&((isOwner&&!need.va)||(isCurrentApplicant&&!need.vw)))
+        .pull-right.btn-group.voting
+            a.vote.btn.btn-success VOTE +5
+            a.vote.btn.btn-danger VOTE -5
     if(need.status=='inProgress'&&(isCurrentApplicant||isOwner))
         if(isOwner && !need.ownerMarked)
             a.btn.btn-success.pull-right.markToComplete(href="/ownerMark/"+need._id) MARK AS COMPLETED
@@ -16,8 +19,10 @@ block content
                 strong IN PROGRESS with #{need.currentApplicant.name}
             when 'completed'
                 strong COMPLETED
-                 |<span class='timeago' title='Completed on #{moment(need.completedDate).format('dd MMM YYYY hh:mm:ss')}'>#{moment(need.completedDate).from(need.createdAt)}</span>
-
+                 span.timeago(title=moment(need.completedDate).format('dd MMM YYYY hh:mm:ss'))
+                  |  #{moment(need.completedDate).from(need.createdAt)}
+                 |  with the help of&nbsp;
+                 a.btn.user(href='/user/'+need.currentApplicantId)=need.currentApplicant.name+' | '+need.currentApplicant.needRating
 
     p.needBody=need.body
 
@@ -36,19 +41,17 @@ block content
             br
             each applicant in appliedUsers
                 if(isOwner && need.status=='inProgress' && need.currentApplicant.id == applicant.id)
-                    a.btn.btn-danger(href='/dismissApplicant/'+need._id,title='End working with this person and rate him?')=applicant.name+' - '+applicant.needRating
+                    a.btn.btn-danger(href='/dismissApplicant/'+need._id,title='End working with this person?')=applicant.name+' | '+applicant.needRating
                 else if(isOwner)
-                    a.applicant.btn.btn-warning(href='/accept/'+applicant.id+'/'+need._id,title='Accept this person?')= applicant.name+' - '+applicant.needRating
+                    a.applicant.btn.btn-warning(href='/accept/'+applicant.id+'/'+need._id,title='Accept this person?')= applicant.name+' | '+applicant.needRating
                 else
-                    a.btn.disabled(href='#')=applicant.name+' - '+applicant.needRating
+                    a.btn.disabled(href='#')=applicant.name+' | '+applicant.needRating
 
-
-
-
-    .author created by <strong>#{need.author.name}</strong> posted <span class='timeago' title='#{moment(need.createdAt).format('dd MMM YYYY hh:mm:ss')}'> #{moment(need.createdAt).fromNow()}<span>
+    .author created by <strong class="text-info"><a href="/user/#{need.author.id}">#{need.author.name}</a></strong> posted <span class='timeago' title='#{moment(need.createdAt).format('dd MMM YYYY hh:mm:ss')}'> #{moment(need.createdAt).fromNow()}<span>
     .clearer
     br
     hr
+
     .commentWrapper
         .comments
             if(need.comments)
@@ -99,6 +102,20 @@ block scripts
             $.get(url,function(){
                 link.fadeOut()
             })
+        })
+
+        $('.vote').click(function(e){
+            var btn = $(this);
+            if(btn.is('.btn-success')){
+                $.get('/vote/#{need._id}/up',function(res){
+                    $('.voting').fadeOut();
+                })
+            }
+            else{
+                $.get('/vote/#{need._id}/down',function(res){
+                    $('.voting').fadeOut();
+                })
+            }
         })
 
 

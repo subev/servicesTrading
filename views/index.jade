@@ -6,14 +6,14 @@ block head
 block content
   .lead
     h2 Trading Services
-    p Trading services is something that will definitely help your deal with your daily tasks. We will help you find the right person to do your job.
+    p Trading services is something that will help your deal with your daily tasks. Here you could find the right person to do your job.
   div#lvNeeds
   script(type='text/kendo',id='lvTemplate')
     .lvItem
       <a href='need/#:_id#'><h3>#:title#</h3></a>
       <p class='itemBody'> #:body # </p>
       <div class='status'>#: status #</div>
-      <div class='classInfo'>by <strong>#:author.name#</strong> posted <span class='timeago' title='#=kendo.format("{0:MMM/dd/yyyy H:m:s}",createdAt)#'></span></div>
+      <div class='classInfo'>by <strong class="text-info"><a href="/user/#=author.id#">#=author.name#</a></strong> posted <span class='timeago' title='#=kendo.format("{0:MMM/dd/yyyy H:m:s}",createdAt)#'></span></div>
       <div class='clearer'/>
 block scripts
     script

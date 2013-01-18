@@ -2,4 +2,121 @@ extends layout
 
 block content
     h3=user.name
-    h3=user.id
+    .text-info is member for <strong class='timeago' title='Registered on #{moment(user.needRegistration).format('DD MMM YYYY hh:mm:ss')}'>
+        |#{moment.duration(new Date().getTime()-user.needRegistration.getTime()).humanize()}</strong> with rating of #{user.needRating} points
+
+    <hr/>
+    h4 Tasks started by #{user.name}
+    #gridCreated
+    h4 Tasks completed by #{user.name}
+    #gridHelped
+
+block scripts
+    script
+
+        $('#gridCreated').kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "/needsFor/#{user.id}"
+                    }
+                },
+                schema: {
+
+                    parse:function(response){
+                         for(idx in response){
+                             response[idx].createdAt = new Date(response[idx].createdAt);
+                             if(response[idx].completedDate){
+                                response[idx].completedDate = new Date(response[idx].completedDate)
+                             }
+                         }
+                         return response;
+                    }
+                }
+            },
+            columns:[
+            {
+                title:'Title',
+                template:'<a href="/need/#=_id#">#=title#</a>',
+                width:'20%'
+            },
+            {
+                title:'Created On',
+                field:'createdAt',
+                template:'#=kendo.format("{0:dd/MM/yyyy H:m}",createdAt)#'
+            },
+            {
+                title:'Status',
+                field:'status'
+            },
+            {
+                title:'Completed Date',
+                field:'completedDate',
+                template:'#=data.completedDate?kendo.format("{0:dd/MM/yyyy H:m}",completedDate):""#'
+            },
+            {
+                title:'People interested',
+                template:'#=applied?applied.length:"0"#'
+            },
+            {
+                title:'Number of comments',
+                template:'#=applied?applied.length:"0"#'
+            }
+            ]
+        })
+
+        $('#gridHelped').kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "/helpedFor/#{user.id}"
+                    }
+                },
+                schema: {
+
+                    parse:function(response){
+                         for(idx in response){
+                             response[idx].createdAt = new Date(response[idx].createdAt);
+                             if(response[idx].completedDate){
+                                response[idx].completedDate = new Date(response[idx].completedDate)
+                             }
+                         }
+                         return response;
+                    }
+                }
+            },
+            columns:[
+            {
+                title:'Title',
+                template:'<a href="/need/#=_id#">#=title#</a>',
+                width:'20%'
+            },
+            {
+                title:'Created On',
+                field:'createdAt',
+                template:'#=kendo.format("{0:dd/MM/yyyy H:m}",createdAt)#'
+            },
+            {
+                title:'Created By',
+                field:'author.name',
+                template:'<a href="/user/#=author.id#">#=author.name#</a>'
+            },
+            {
+                title:'Status',
+                field:'status'
+            },
+            {
+                title:'Completed Date',
+                field:'completedDate',
+                template:'#=data.completedDate?kendo.format("{0:dd/MM/yyyy H:m}",completedDate):""#'
+            },
+            {
+                title:'People interested',
+                template:'#=applied?applied.length:"0"#'
+            },
+            {
+                title:'Number of comments',
+                template:'#=applied?applied.length:"0"#'
+            }
+            ]
+        })

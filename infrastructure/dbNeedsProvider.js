@@ -123,6 +123,17 @@ NeedsProvider.prototype.getNeedsForUser = function(userId,callback){
     })
 }
 
+NeedsProvider.prototype.getNeedsWhichUserCompleted= function(userId,callback){
+    this.getCollection('needs',function(error,users){
+        if(error) callback(error)
+        else{
+            users.find({'currentApplicantId':userId,status:'completed'}).toArray(function(err,result){
+                callback(null,result)
+            })
+        }
+    })
+}
+
 NeedsProvider.prototype.applyFor = function(needId,userId,callback){
     this.getCollection('needs',function(error,needsCollection){
         needsCollection.update(
@@ -164,7 +175,9 @@ NeedsProvider.prototype.cancelIfPending = function(needId,userId,callback){
             {
                 '$set':{
                     currentApplicantId:0,
-                    status:'open'
+                    status:'open',
+                    applicantMarked:false,
+                    ownerMarked:false
                 }
             },
             function(){
@@ -223,7 +236,9 @@ NeedsProvider.prototype.dismiss = function(needId,authorId,callback){
             {
                 '$set':{
                     currentApplicantId:0,
-                    status:'open'
+                    status:'open',
+                    applicantMarked:false,
+                    ownerMarked:false
                 }
             },
             function(){
@@ -268,7 +283,6 @@ NeedsProvider.prototype.applicantMark = function(needId,applicantId,callback){
                 }
             },
             function(){
-                console.log('1111',callback)
                 that.updateToCompletedIfNeed(needId,callback);
             }
         )
@@ -276,12 +290,9 @@ NeedsProvider.prototype.applicantMark = function(needId,applicantId,callback){
 }
 
 NeedsProvider.prototype.updateToCompletedIfNeed = function(needId,callback){
-    console.log('2222',callback)
     var that = this;
     that.findById(needId,function(error,need){
-        console.log('3333',callback)
         if(need.ownerMarked&&need.applicantMarked){
-            console.log('4444',callback)
             that.getCollection('needs',function(error,needsCollection){
                 needsCollection.update({
                         _id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId)
@@ -299,6 +310,66 @@ NeedsProvider.prototype.updateToCompletedIfNeed = function(needId,callback){
         else{
             callback(null)
         }
+    })
+}
+
+NeedsProvider.prototype.vote = function(needId,userId,positive,callback){
+    var that = this;
+    that.findById(needId,function(error,need){
+        if(need.status=='completed'&&
+            (need.author.id==userId||need.currentApplicantId==userId))
+        {
+            var points = 5;
+            positive||(points=-points);
+            if(!need.va&&userId==need.author.id){
+                that.getCollection('needs',function(err,needsCollection){
+                    if(err) callback(err)
+                    else{
+                        needsCollection.update({
+                            _id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId)
+                        },
+                        { $set:{va:true} },
+                        function(err){
+                            if(err) callback(err)
+                            else that.rateUser(need.currentApplicantId,points,callback)
+                        })
+                    }
+                })
+            }
+            else if(!need.vw&&userId==need.currentApplicantId){
+                that.getCollection('needs',function(err,needsCollection){
+                    if(err) callback(err)
+                    else{
+                        needsCollection.update({
+                                _id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId)
+                            },
+                            { $set:{vw:true} },
+                            function(err){
+                                if(err) callback(err)
+                                else that.rateUser(need.author.id,points,callback)
+                            })
+                    }
+                })
+            }
+            else{
+                callback(new Error('The user has probably already voted.'))
+            }
+        }
+        else{
+            callback(new Error('Either status is not completed or you do not have privileges to update'))
+        }
+    })
+}
+
+NeedsProvider.prototype.rateUser = function(userId,points,callback){
+    this.getCollection('users',function(err,usersCollection){
+        usersCollection.update({
+            id:userId
+        },
+        {
+            $inc:{ needRating:points }
+        }
+        ,callback)
     })
 }
 

@@ -73,12 +73,14 @@ app.get('/need/:id', router.need);
 app.post('/addComment',accessChecker, router.addComment);
 app.get('/user/:id',router.user);
 app.get('/needsFor/:id',router.needsForUser);
+app.get('/helpedFor/:id',router.needsWhichUserCompleted);
 app.get('/applyFor/:id',accessChecker,router.applyFor);
 app.get('/cancelFor/:id',accessChecker,router.cancelFor);
 app.get('/accept/:userId/:needId',accessChecker,router.accept);
 app.get('/dismissApplicant/:needId',accessChecker,router.dismiss);
 app.get('/ownerMark/:needId',accessChecker,router.ownerMark);
 app.get('/applicantMark/:needId',accessChecker,router.applicantMark);
+app.get('/vote/:needId/:type',accessChecker,router.vote);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
