@@ -23,7 +23,9 @@ block content
                   |  #{moment(need.completedDate).from(need.createdAt)}
                  |  with the help of&nbsp;
                  a.btn.user(href='/user/'+need.currentApplicantId)=need.currentApplicant.name+' | '+need.currentApplicant.needRating
-
+    strong tags:&nbsp;
+    each tag in need.tags
+        em.tag #{tag}&nbsp;
     p.needBody=need.body
 
 

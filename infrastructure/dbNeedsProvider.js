@@ -5,8 +5,25 @@ var BSON = require('mongodb').BSON;
 var ObjectID = require('mongodb').ObjectID;
 
 NeedsProvider = function(host, port) {
-    this.db= new Db('node-mongo-needs', new Server(host, port, {auto_reconnect: true}, {}));
-    this.db.open(function(){});
+    var that=this;
+    that.db= new Db('node-mongo-needs', new Server(host, port, {auto_reconnect: true}, {}));
+    that.db.open(function(){
+        that.getCollection('needs',function(err,needsCollection){
+            needsCollection.ensureIndex( {
+                'tags': 1,
+                'currentApplicantId' :1,
+                'author.id':1
+            });
+        });
+
+        that.getCollection('users',function(err,needsCollection){
+            needsCollection.ensureIndex( {
+                'id': 1
+            });
+        });
+    });
+
+
 };
 
 NeedsProvider.prototype.getCollection= function(colName,callback) {
@@ -124,10 +141,10 @@ NeedsProvider.prototype.getNeedsForUser = function(userId,callback){
 }
 
 NeedsProvider.prototype.getNeedsWhichUserCompleted= function(userId,callback){
-    this.getCollection('needs',function(error,users){
+    this.getCollection('needs',function(error,needs){
         if(error) callback(error)
         else{
-            users.find({'currentApplicantId':userId,status:'completed'}).toArray(function(err,result){
+            needs.find({'currentApplicantId':userId,status:'completed'}).toArray(function(err,result){
                 callback(null,result)
             })
         }
@@ -372,5 +389,32 @@ NeedsProvider.prototype.rateUser = function(userId,points,callback){
         ,callback)
     })
 }
+
+NeedsProvider.prototype.getTags = function(callback){
+    this.getCollection('tags',function(err,tagsCollection){
+        tagsCollection.find().toArray(function(error, results) {
+            if( error ) callback(error)
+            else callback(null, results)
+        });
+    })
+}
+
+NeedsProvider.prototype.addTag = function(tags, callback) {
+    this.getCollection('tags',function(error, tagsCollection) {
+        for(f in tags){
+            tags[f] = {text:tags[f]}
+        }
+
+        if( error ) callback(error)
+        else {
+            if( typeof(tags.length)=="undefined")
+                tags = [tags];
+            for(var j =0;j< tags.length; j++) {
+                console.log('Adding',{text:tags[j].text});
+                tagsCollection.update({text:tags[j].text}, {$inc:{count:1}},{ upsert: true });
+            }
+        }
+    });
+};
 
 exports.NeedsProvider = NeedsProvider;

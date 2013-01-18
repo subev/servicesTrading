@@ -20,18 +20,27 @@ exports.create = function(req, res){
 };
 
 exports.saveNew = function(req, res){
+    var tags = req.param('tags').trim().toLowerCase().split(/[\W\d\s]+/);
+    tags = tags.filter(function(elem, pos) {
+        return tags.indexOf(elem) == pos;
+    })
 
     provider.save({
         title: req.param('title'),
         body: req.param('body'),
+        tags:tags,
         author: {
             name:req.user.name,
             id:req.user.id
         },
         applied:[],
         status:'open'
-    }, function( error, docs) {
-        res.redirect('/')
+    }, function( error, needs) {
+        if(error) res.send(500,'Creation failed!')
+        else{
+            provider.addTag(tags);
+            res.redirect('/')
+        }
     });
 }
 
@@ -219,5 +228,13 @@ exports.vote = function(req,res){
     provider.vote(needId,userId,positive,function(err){
         if(err) res.send(500,'Voting failed')
         else res.send(200);
+    })
+}
+
+
+exports.getTags = function(req,res){
+    provider.getTags(function(err,tags){
+        if(err) res.send(500,'Cannot get tags')
+        else res.json(tags)
     })
 }

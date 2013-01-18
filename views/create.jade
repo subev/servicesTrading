@@ -13,8 +13,28 @@ block content
                 label Description
                 textarea.span3(name="body",required, validationMessage='Description is required!', id="editArticleBody", placeholder='Enter the Description here')
                 br
+                input#tags(name='tags',required, validationMessage='At least one tag is required!',)
+                br
+                br
                 input.btn.btn-primary(type="submit", value="Send")
+
+
 
 block scripts
     script
         var validator = $('.well').kendoValidator().data('kendoValidator');
+
+        $('#tags').kendoAutoComplete({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "/getTags"
+                    }
+                }
+            },
+            filter: "startswith",
+            placeholder: "Provide tag...",
+            separator: ", ",
+            dataTextField:"text"
+        })
+

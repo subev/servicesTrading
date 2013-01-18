@@ -12,7 +12,13 @@ block content
     .lvItem
       <a href='need/#:_id#'><h3>#:title#</h3></a>
       <p class='itemBody'> #:body # </p>
-      <div class='status'>#: status #</div>
+      <div class='text-warning'><strong>#: status #</strong></div>
+      br
+      <ul class='btn-group'>
+      |# for (var i = 0; i < tags.length; i++) { #
+      |      <li class='btn tag'>#= tags[i] #</li>
+      |# } #
+      </ul>
       <div class='classInfo'>by <strong class="text-info"><a href="/user/#=author.id#">#=author.name#</a></strong> posted <span class='timeago' title='#=kendo.format("{0:MMM/dd/yyyy H:m:s}",createdAt)#'></span></div>
       <div class='clearer'/>
 block scripts
