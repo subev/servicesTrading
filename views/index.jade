@@ -7,16 +7,31 @@ block content
   .lead
     h2 Trading Services
     p Trading services is something that will help your deal with your daily tasks. Here you could find the right person to do your job.
+  .btn-group.statusOptions
+    button.btn.btn-success.active(data-status='open') OPEN
+    button.btn.btn-warning(data-status='inProgress') IN PROGRESS
+    button.btn.btn-danger(data-status='completed') COMPLETED
+   input#tags
   div#lvNeeds
   script(type='text/kendo',id='lvTemplate')
     .lvItem
-      <a href='need/#:_id#'><h3>#:title#</h3></a>
+      a(href='need/#:_id#')
+        h3 #:title#
+          |#if(status=='open'){#
+          |<a class='btn btn-small btn-success disabled' style='float:right'> OPEN
+          |#}#
+          |#if(status=='inProgress'){#
+          |<a class='btn btn-small btn-warning disabled' style='float:right'> IN PROGRESS
+          |#}#
+          |#if(status=='completed'){#
+          |<a class='btn btn-small btn-danger disabled' style='float:right'> COMPLETED
+          |#}#
       <p class='itemBody'> #:body # </p>
-      <div class='text-warning'><strong>#: status #</strong></div>
+
       br
-      <ul class='btn-group'>
+      <ul class='btn-group tags'>
       |# for (var i = 0; i < tags.length; i++) { #
-      |      <li class='btn tag'>#= tags[i] #</li>
+      |   <li class='btn tag'>#= tags[i] #</li>
       |# } #
       </ul>
       <div class='classInfo'>by <strong class="text-info"><a href="/user/#=author.id#">#=author.name#</a></strong> posted <span class='timeago' title='#=kendo.format("{0:MMM/dd/yyyy H:m:s}",createdAt)#'></span></div>
@@ -25,11 +40,17 @@ block scripts
     script
         $(function(){
 
-            $("#lvNeeds").kendoListView({
+            var lv = $("#lvNeeds").kendoListView({
                 dataSource: {
                     transport: {
                         read: {
-                            url: "/all"
+                            url: "/all",
+                            data:function(){
+                                if($('#tags').data('kendoAutoComplete')){
+                                    tags = $('#tags').data('kendoAutoComplete').value();
+                                    return {tags:tags}
+                                }
+                            }
                         }
                     },
                     schema: {
@@ -40,11 +61,54 @@ block scripts
                              }
                              return response;
                         }
+                    },
+                    filter:{
+                        field:"status",
+                        operator:"eq",
+                        value:'open'
                     }
                 },
                 dataBound:function(){
                         $('.timeago').timeago();
                 },
                 template: $('#lvTemplate').html()
-            });
+            }).data('kendoListView');
+
+            $('.statusOptions').on('click','.btn',function(e){
+                $(this).toggleClass('active');
+
+                var filter = {logic:'or',filters:[]};
+                $('.statusOptions .active').each(function(){
+                    filter.filters.push({
+                        field:"status",
+                        operator:"eq",
+                        value:$(this).data('status')
+                    })
+                })
+                lv.dataSource.filter(filter);
+            })
+
+            var ac = $('#tags').kendoAutoComplete({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/getTags"
+                        }
+                    }
+                },
+                change:function(){
+                    lv.dataSource.read()
+                },
+                filter: "startswith",
+                placeholder: "Enter tag to search",
+                separator: ", ",
+                template:"#=text# (#=count#)",
+                dataTextField:"text"
+            }).data('kendoAutoComplete');
+
+            $('#lvNeeds').on('click','.tag',function(){
+                var tag = $(this).html();
+                ac.value(ac.value()+tag+', ');
+                ac.trigger("change");
+            })
         })

@@ -33,11 +33,14 @@ NeedsProvider.prototype.getCollection= function(colName,callback) {
     });
 };
 
-NeedsProvider.prototype.findAll = function(callback) {
+NeedsProvider.prototype.findAll = function(tags,callback) {
+    var query = null;
+    if(tags.length)
+        query={tags:{$all:tags}};
     this.getCollection('needs',function(error, needsCollection) {
         if( error ) callback(error)
         else {
-            needsCollection.find(null,{comments:0}).sort({createdAt:-1 }).toArray(function(error, results) {
+            needsCollection.find(query,{comments:0}).sort({createdAt:-1 }).toArray(function(error, results) {
                 if( error ) callback(error)
                 else callback(null, results)
             });
@@ -410,7 +413,6 @@ NeedsProvider.prototype.addTag = function(tags, callback) {
             if( typeof(tags.length)=="undefined")
                 tags = [tags];
             for(var j =0;j< tags.length; j++) {
-                console.log('Adding',{text:tags[j].text});
                 tagsCollection.update({text:tags[j].text}, {$inc:{count:1}},{ upsert: true });
             }
         }

@@ -7,11 +7,11 @@ block content
         div
             div
                 label Title
-                input.span3(type="text",required ,validationMessage='Title is required!',
+                input(type="text",required ,validationMessage='Title is required!',
                 name="title", id="editArticleTitle", placeholder='Enter the title here')
             div
                 label Description
-                textarea.span3(name="body",required, validationMessage='Description is required!', id="editArticleBody", placeholder='Enter the Description here')
+                textarea#body(name="body",required, validationMessage='Description is required!', placeholder='Enter the Description here',rows=20,cols=40)
                 br
                 input#tags(name='tags',required, validationMessage='At least one tag is required!',)
                 br
@@ -23,7 +23,6 @@ block content
 block scripts
     script
         var validator = $('.well').kendoValidator().data('kendoValidator');
-
         $('#tags').kendoAutoComplete({
             dataSource: {
                 transport: {

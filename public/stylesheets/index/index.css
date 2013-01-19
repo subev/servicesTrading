@@ -11,3 +11,9 @@
 #lvNeeds {
   border: none;
 }
+.statusOptions {
+  margin: 10px 5px;
+}
+#tags {
+  width: 350px;
+}

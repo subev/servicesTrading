@@ -10,7 +10,15 @@ exports.login = function(req,res){
 };
 
 exports.all = function(req, res){
-    provider.findAll(function(err,data){
+    var tags = [];
+    if(req.query.tags){
+        tags = req.query.tags.trim().toLowerCase().split(/[\W\d\s]+/);
+        tags = tags.filter(function(elem, pos) {
+            return elem&&tags.indexOf(elem) == pos;
+        })
+    }
+
+    provider.findAll(tags,function(err,data){
         res.json({results:data});
     })
 };
@@ -22,7 +30,7 @@ exports.create = function(req, res){
 exports.saveNew = function(req, res){
     var tags = req.param('tags').trim().toLowerCase().split(/[\W\d\s]+/);
     tags = tags.filter(function(elem, pos) {
-        return tags.indexOf(elem) == pos;
+        return elem&&tags.indexOf(elem) == pos;
     })
 
     provider.save({

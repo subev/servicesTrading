@@ -11,7 +11,7 @@ block content
             a.btn.btn-success.pull-right.markToComplete(href="/ownerMark/"+need._id) MARK AS COMPLETED
         else if(isCurrentApplicant && !need.applicantMarked)
             a.btn.btn-success.pull-right.markToComplete(href="/applicantMark/"+need._id) MARK AS COMPLETED
-    div.text-warning
+    .text-warning
         case need.status
             when 'open'
                 strong OPEN
@@ -32,7 +32,7 @@ block content
      if(need.status!='completed'&&everyauth.userId && !isOwner)
         div
         if(need.applied.indexOf(everyauth.userId)==-1)
-          a.btn.apply(href='/applyfor/'+need._id) Apply for it!
+          a.btn.btn-success.apply(href='/applyfor/'+need._id) Apply for it!
         else
           a.btn.btn-danger.apply(href='/cancelfor/'+need._id,class=) Cancel request
 
