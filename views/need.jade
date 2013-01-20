@@ -2,6 +2,7 @@ extends layout
 
 block content
     h3 #{need.title}
+    h5=need.city
     if(need.status=='completed'&&((isOwner&&!need.va)||(isCurrentApplicant&&!need.vw)))
         .pull-right.btn-group.voting
             a.vote.btn.btn-success VOTE +5
@@ -43,11 +44,13 @@ block content
             br
             each applicant in appliedUsers
                 if(isOwner && need.status=='inProgress' && need.currentApplicant.id == applicant.id)
-                    a.btn.btn-danger(href='/dismissApplicant/'+need._id,title='End working with this person?')=applicant.name+' | '+applicant.needRating
+                   a.btn.btn-small.btn-danger(href='/dismissApplicant/'+need._id,title='End working with this person?')=applicant.name+' | '+applicant.needRating
                 else if(isOwner)
-                    a.applicant.btn.btn-warning(href='/accept/'+applicant.id+'/'+need._id,title='Accept this person?')= applicant.name+' | '+applicant.needRating
+                  .btn-group
+                    a.applicant.btn.btn-small.btn-warning(href='/accept/'+applicant.id+'/'+need._id,title='Accept this person?')= applicant.name+' | '+applicant.needRating
+                    a.btn.btn-primary.btn-small(href='/user/'+applicant.id)= '?'
                 else
-                    a.btn.disabled(href='#')=applicant.name+' | '+applicant.needRating
+                   a.btn.btn-small(href='/user/'+applicant.id)=applicant.name+' | '+applicant.needRating
 
     .author created by <strong class="text-info"><a href="/user/#{need.author.id}">#{need.author.name}</a></strong> posted <span class='timeago' title='#{moment(need.createdAt).format('dd MMM YYYY hh:mm:ss')}'> #{moment(need.createdAt).fromNow()}<span>
     .clearer

@@ -9,6 +9,8 @@ block content
                 label Title
                 input(type="text",required ,validationMessage='Title is required!',
                 name="title", id="editArticleTitle", placeholder='Enter the title here')
+                label City
+                input#city(name='city',required, validationMessage='City is needed')
             div
                 label Description
                 textarea#body(name="body",required, validationMessage='Description is required!', placeholder='Enter the Description here',rows=20,cols=40)
@@ -35,5 +37,9 @@ block scripts
             placeholder: "Provide tag...",
             separator: ", ",
             dataTextField:"text"
+        })
+
+        $('#city').kendoDropDownList({
+            dataSource:['Sofia','Plovdiv','Varna','Burgas','Stara Zagora','Pleven','Sliven','Dobrich','Shumen']
         })
 

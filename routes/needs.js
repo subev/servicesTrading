@@ -17,8 +17,12 @@ exports.all = function(req, res){
             return elem&&tags.indexOf(elem) == pos;
         })
     }
+    var status = req.query['status'];
+    var city = req.query['city'];
 
-    provider.findAll(tags,function(err,data){
+    console.log('PARSED:',tags,city,status);
+
+    provider.findAll(tags,city,status,function(err,data){
         res.json({results:data});
     })
 };
@@ -37,6 +41,7 @@ exports.saveNew = function(req, res){
         title: req.param('title'),
         body: req.param('body'),
         tags:tags,
+        city:req.param('city'),
         author: {
             name:req.user.name,
             id:req.user.id

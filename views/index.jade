@@ -11,12 +11,15 @@ block content
     button.btn.btn-success.active(data-status='open') OPEN
     button.btn.btn-warning(data-status='inProgress') IN PROGRESS
     button.btn.btn-danger(data-status='completed') COMPLETED
-   input#tags
+  input#tags
+  input#city
   div#lvNeeds
   script(type='text/kendo',id='lvTemplate')
     .lvItem
       a(href='need/#:_id#')
-        h3 #:title#
+        div
+          h3(style='display:inline') #:title#
+          |  / #=city#
           |#if(status=='open'){#
           |<a class='btn btn-small btn-success disabled' style='float:right'> OPEN
           |#}#
@@ -46,10 +49,23 @@ block scripts
                         read: {
                             url: "/all",
                             data:function(){
-                                if($('#tags').data('kendoAutoComplete')){
-                                    tags = $('#tags').data('kendoAutoComplete').value();
-                                    return {tags:tags}
-                                }
+
+                                    var tags = $('#tags').data('kendoAutoComplete').value();
+                                    var city = ddlCity.value();
+                                    if(city=='Choose City')
+                                        city=null;
+                                    var status= [];
+                                    $('.statusOptions .active').each(function(){
+                                        status.push($(this).data('status'))
+                                    })
+                                    var data = {
+                                        tags:tags,
+                                        city:city,
+                                        status:status
+                                    };
+                                    console.log(data);
+                                    return data;
+
                             }
                         }
                     },
@@ -62,12 +78,12 @@ block scripts
                              return response;
                         }
                     },
-                    filter:{
-                        field:"status",
-                        operator:"eq",
-                        value:'open'
-                    }
+                    serverFiltering:true,
+                    serverPaging:true,
+                    pageable:true,
+                    pageSize:3
                 },
+                autoBind:false,
                 dataBound:function(){
                         $('.timeago').timeago();
                 },
@@ -76,16 +92,7 @@ block scripts
 
             $('.statusOptions').on('click','.btn',function(e){
                 $(this).toggleClass('active');
-
-                var filter = {logic:'or',filters:[]};
-                $('.statusOptions .active').each(function(){
-                    filter.filters.push({
-                        field:"status",
-                        operator:"eq",
-                        value:$(this).data('status')
-                    })
-                })
-                lv.dataSource.filter(filter);
+                lv.dataSource.read();
             })
 
             var ac = $('#tags').kendoAutoComplete({
@@ -111,4 +118,14 @@ block scripts
                 ac.value(ac.value()+tag+', ');
                 ac.trigger("change");
             })
+
+            var ddlCity = $('#city').kendoDropDownList({
+                dataSource:['Sofia','Plovdiv','Varna','Burgas','Stara Zagora','Pleven','Sliven','Dobrich','Shumen'],
+                change:function(e){
+                      lv.dataSource.read();
+                },
+                optionLabel:'Choose City'
+            }).data('kendoDropDownList');
+
+            lv.dataSource.read();
         })
