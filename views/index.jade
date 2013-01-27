@@ -18,7 +18,7 @@ block content
     .lvItem
       a(href='need/#:_id#')
         div
-          h3(style='display:inline') #:title#
+          h3.title #:title#
           |  / #=city#
           |#if(status=='open'){#
           |<a class='btn btn-small btn-success disabled' style='float:right'> OPEN
@@ -78,10 +78,7 @@ block scripts
                              return response;
                         }
                     },
-                    serverFiltering:true,
-                    serverPaging:true,
-                    pageable:true,
-                    pageSize:3
+                    serverFiltering:true
                 },
                 autoBind:false,
                 dataBound:function(){

@@ -21,6 +21,12 @@ NeedsProvider = function(host, port) {
                 'id': 1
             });
         });
+
+        that.getCollection('tags',function(err,tagsCollection){
+            tagsCollection.ensureIndex( {
+                'text': 1
+            });
+        });
     });
 
 
@@ -45,8 +51,6 @@ NeedsProvider.prototype.findAll = function(tags,city,statuses,callback) {
         query=query||{};
         query.status = {'$in':statuses};
     }
-
-    console.log('DB QUERY',query);
 
     this.getCollection('needs',function(error, needsCollection) {
         if( error ) callback(error)
@@ -325,7 +329,6 @@ NeedsProvider.prototype.updateToCompletedIfNeed = function(needId,callback){
     that.findById(needId,function(error,need){
         if(need.ownerMarked&&need.applicantMarked){
             that.getCollection('needs',function(error,needsCollection){
-                console.log('CHECK NEED FOR COMPLETEION',need);
                 needsCollection.update({
                         _id:needsCollection.db.bson_serializer.ObjectID.createFromHexString(needId)
                     },

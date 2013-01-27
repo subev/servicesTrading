@@ -20,7 +20,6 @@ exports.all = function(req, res){
     var status = req.query['status'];
     var city = req.query['city'];
 
-    console.log('PARSED:',tags,city,status);
 
     provider.findAll(tags,city,status,function(err,data){
         res.json({results:data});

@@ -7,13 +7,13 @@ block content
         div
             div
                 label Title
-                input(type="text",required ,validationMessage='Title is required!',
+                input(type="text",required,maxlength="80"  ,validationMessage='Title is required!',
                 name="title", id="editArticleTitle", placeholder='Enter the title here')
                 label City
                 input#city(name='city',required, validationMessage='City is needed')
             div
                 label Description
-                textarea#body(name="body",required, validationMessage='Description is required!', placeholder='Enter the Description here',rows=20,cols=40)
+                textarea#body(name="body",required, validationMessage='Description is required!', placeholder='Enter the Description here',rows=20,style="width:85%;")
                 br
                 input#tags(name='tags',required, validationMessage='At least one tag is required!',)
                 br
@@ -36,6 +36,7 @@ block scripts
             filter: "startswith",
             placeholder: "Provide tag...",
             separator: ", ",
+            template:"#=text# (#=count#)",
             dataTextField:"text"
         })
 
